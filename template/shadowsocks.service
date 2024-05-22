@@ -1,0 +1,13 @@
+[Unit]
+Description=Shadowsocks Service
+After=network.target
+
+[Service]
+Type=simple
+User=shadowsocks
+Group=shadowsocks
+ExecStart=/bin/ssservice -c /etc/shadowsocks/config.json
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
