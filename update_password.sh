@@ -43,7 +43,7 @@ if [ -f /etc/shadowsocks/config.json ]; then
     echo "密码已成功更新"
     systemctl restart shadowsocks
 
-    ssurl -e /etc/shadowsocks/config.json -c
+    ssurl -e /etc/shadowsocks/config.json
 else
     echo "/etc/shadowsocks/config.json 文件未找到！"
 fi

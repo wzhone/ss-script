@@ -85,13 +85,16 @@ cp ./template/config.json /etc/shadowsocks
 log "生成服务配置文件到 /etc/systemd/system/"
 cp ./template/shadowsocks.service /etc/systemd/system/shadowsocks.service
 
-log "设置权限..."
+log "设置配置文件权限..."
 chown -R shadowsocks:shadowsocks /etc/shadowsocks
 
-log "刷新密码..."
+log "安装设置密码..."
 ./update_password.sh
 
 log "启动 shadowsocks 服务..."
 systemctl daemon-reload
 systemctl enable --now shadowsocks
+log "安装 shadowsocks 服务完成"
 
+sleep 1s
+systemctl status shadowsocks
