@@ -46,7 +46,7 @@ v2ray_plugin_assets=$(curl -s $v2ray_plugin_repo | jq -r '.assets[] | select(.na
 if [ -n "$v2ray_plugin_assets" ]; then
     for url in $v2ray_plugin_assets; do
         log "下载 v2ray plugin from $url"
-        curl -L -o ./tmp/v2ray-plugin.tar.gz "$url"
+        curl -L -s -o ./tmp/v2ray-plugin.tar.gz "$url"
         tar -xzf ./tmp/v2ray-plugin.tar.gz -C ./tmp
         break
     done
@@ -61,7 +61,7 @@ shadowsocks_assets=$(curl -s $shadowsocks_repo | jq -r '.assets[] | select(.name
 if [ -n "$shadowsocks_assets" ]; then
     for url in $shadowsocks_assets; do
         log "下载 shadowsocks from $url"
-        curl -L -o ./tmp/shadowsocks.tar.xz "$url"
+        curl -L -s -o ./tmp/shadowsocks.tar.xz "$url"
         tar -xJf ./tmp/shadowsocks.tar.xz -C ./tmp
         break
     done
@@ -88,13 +88,14 @@ cp ./template/shadowsocks.service /etc/systemd/system/shadowsocks.service
 log "设置配置文件权限..."
 chown -R shadowsocks:shadowsocks /etc/shadowsocks
 
+log "启动 shadowsocks 服务..."
+systemctl daemon-reload
+systemctl enable shadowsocks
+
 log "安装设置密码..."
 ./update_password.sh
 
-log "启动 shadowsocks 服务..."
-systemctl daemon-reload
-systemctl enable --now shadowsocks
 log "安装 shadowsocks 服务完成"
 
 sleep 1s
-systemctl status shadowsocks
+systemctl status shadowsocks --no-pager | grep -E 'Active:|Loaded:'

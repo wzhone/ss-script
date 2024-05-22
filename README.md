@@ -41,3 +41,62 @@
 执行 `sudo ./update_password.sh`，更新所有服务的密码。密码更新即时生效无需重启服务。
 
 更新完成后将在命令行输出更新后的 `ss url`。修改后的密码需手动查看`/etc/shadowsocks/config.json`文件。
+
+
+
+## 扩展
+
+
+
+### 1024端口限制
+
+通过在服务配置文件里加入指定配置，可以使其绑定低于1024的端口。
+
+**/etc/systemd/system/shadowsocks.service**
+
+```
+[Unit]
+...
+[Service]
+...
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE # 允许服务绑定到低于 1024 的网络端口
+
+[Install]
+...
+```
+
+
+
+### 定时重启服务
+
+**restart-shadowsocks.timer**
+```
+[Unit]
+Description=Restart Shadowsocks Service Daily
+
+[Timer]
+OnCalendar=*-*-* 00:00:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target
+```
+
+**restart-shadowsocks.service**
+```
+[Unit]
+Description=Shadowsocks Service Restart
+
+[Service]
+Type=oneshot
+ExecStart=/bin/systemctl restart shadowsocks.service
+
+[Install]
+WantedBy=multi-user.target
+```
+
+```shell
+sudo systemctl daemon-reload
+sudo systemctl enable restart-shadowsocks.timer
+sudo systemctl start restart-shadowsocks.timer
+```

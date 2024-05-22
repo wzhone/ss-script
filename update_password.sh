@@ -5,13 +5,20 @@ if [ "$(id -u)" -ne 0 ]; then
     exit 1
 fi
 
+LOG_FILE="/var/log/ss-script.log"
+log() {
+    local msg="$1"
+    echo "$(date +"%Y-%m-%d %H:%M:%S") - $msg" >> "$LOG_FILE"
+    echo "$(date +"%Y-%m-%d %H:%M:%S") - $msg"
+}
+
 # 安装 jq (如果尚未安装)
 if ! command -v jq &> /dev/null
 then
-    echo "jq 未安装，正在安装..."
+    log "jq 未安装，正在安装..."
     sudo dnf install -y jq
     if [ $? -ne 0 ]; then
-        echo "jq安装失败！"
+        log "jq安装失败！"
         exit 1
     fi
 fi
@@ -40,11 +47,11 @@ if [ -f /etc/shadowsocks/config.json ]; then
 
     # 将更新后的 JSON 写回文件
     echo "$json_data" > /etc/shadowsocks/config.json
-    echo "密码已成功更新"
+    log "密码已成功更新"
     systemctl restart shadowsocks
 
     ssurl -e /etc/shadowsocks/config.json
 else
-    echo "/etc/shadowsocks/config.json 文件未找到！"
+    log "/etc/shadowsocks/config.json 文件未找到！"
 fi
 

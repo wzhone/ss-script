@@ -8,6 +8,10 @@ User=shadowsocks
 Group=shadowsocks
 ExecStart=/bin/ssservice server -c /etc/shadowsocks/config.json
 Restart=on-failure
+LimitMEMLOCK=infinity
+LimitRSS=infinity
+LimitCPU=infinity
+PrivateTmp=true
 
 [Install]
 WantedBy=multi-user.target
