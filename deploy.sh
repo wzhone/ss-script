@@ -5,7 +5,7 @@ if [ "$(id -u)" -ne 0 ]; then
     exit 1
 fi
 
-repo="https://api.github.com/repos/StaticN/temp/releases/latest"
+repo="https://api.github.com/repos/wzhone/ss-script/releases/latest"
 assets=$(curl -s "$repo" | jq -r '.assets[] | select(.name | contains("sss")) | .browser_download_url')
 if [ -n "$assets" ]; then
     for url in $assets; do
@@ -14,6 +14,6 @@ if [ -n "$assets" ]; then
         /bin/sss version
     done
 else
-    log "部署失败！"
+    echo "部署失败！"
     exit 1
 fi

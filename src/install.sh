@@ -3,6 +3,52 @@
 source ./scripts/common.sh
 source ./scripts/rotate_key.sh
 
+config_template='{
+  "servers": [
+    {
+      "server": "0.0.0.0",
+      "server_port": 5696,
+      "password": "",
+      "timeout": 300,
+      "method": "aes-256-gcm",
+      "plugin": "/bin/v2ray-plugin",
+      "plugin_opts": "server",
+      "plugin_args": [],
+      "plugin_mode": "tcp_and_udp"
+    },
+    {
+      "server": "0.0.0.0",
+      "server_port": 8541,
+      "password": "",
+      "timeout": 300,
+      "method": "aes-256-gcm",
+      "plugin": "/bin/v2ray-plugin",
+      "plugin_opts": "server",
+      "plugin_args": [],
+      "plugin_mode": "tcp_and_udp"
+    }
+  ]
+}'
+
+service_template='
+[Unit]
+Description=Shadowsocks Service
+After=network.target
+
+[Service]
+Type=simple
+User=shadowsocks
+Group=shadowsocks
+ExecStart=/bin/ssservice server -c /etc/shadowsocks/config.json
+Restart=on-failure
+LimitMEMLOCK=infinity
+LimitRSS=infinity
+LimitCPU=infinity
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+'
 
 # 检查并创建必要的目录
 create_directories() {
@@ -73,10 +119,10 @@ create_shadowsocks_user() {
 # 复制配置文件和服务文件，并设置权限
 setup_shadowsocks_service() {
     log "生成 shadowsocks 配置文件到 /etc/shadowsocks/"
-    cp ./template/config.json /etc/shadowsocks
+    echo "$config_template" > /etc/shadowsocks/config.json
 
     log "生成服务配置文件到 /etc/systemd/system/"
-    cp ./template/shadowsocks.service /etc/systemd/system/shadowsocks.service
+    echo "$service_template" > /etc/systemd/system/shadowsocks.service
 
     log "设置配置文件权限..."
     chown -R shadowsocks:shadowsocks /etc/shadowsocks
