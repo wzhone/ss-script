@@ -1,0 +1,42 @@
+name: package
+
+on:
+  push:
+    tags:
+      - '*'
+      
+  workflow_dispatch:
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Get the version from the tag
+        id: get_version
+        run: |
+          VERSION=$(git describe --tags --abbrev=0)
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Replace version in common.sh
+        run: |
+          echo "version: ${VERSION}"
+          sed -i "s/^VERSION=\".*\"/VERSION=\"${VERSION}\"/" src/common.sh
+
+      - name: Compile
+        run: ./compile.sh
+
+      - name: Create release file
+        run: |
+          touch release.md
+          echo "This is release version ${VERSION}." > release.md
+
+      - uses: ncipollo/release-action@v1
+        with:
+          artifacts: "sss,deploy.sh"
+          bodyFile: "release.md"

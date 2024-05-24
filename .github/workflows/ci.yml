@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compile
+        run: ./compile.sh
+
+      - name: Version
+        run: ./sss version
+
+      - name: Run help
+        run: ./sss help
+
+      - name: Run install
+        run: sudo ./sss install 
+
+      - name: Run enhance
+        run: sudo ./sss enhance 
+
+      - name: Run update
+        run: sudo ./sss update 
+
+      - name: Run rotate
+        run: sudo ./sss rotate -y
+
+      - name: Check
+        run: |
+          systemctl list-unit-files | grep shadowsocks
+          test -f /etc/shadowsocks/config.json
+          test -f /bin/ssserver
+          test -f /bin/v2ray-plugin
+          sudo ipset list | grep cnips
+          sudo iptables-save | grep cnips
+
+      - name: Run uninstall
+        run: sudo ./sss uninstall -y
+
+      - name: Read log
+        run: ./sss log 
